@@ -21,8 +21,5 @@
   "bugs": {
     "url": "https://github.com/nlfmt/ivy-dl/issues"
   },
-  "homepage": "https://github.com/nlfmt/ivy-dl#readme",
-  "dependencies": {
-    "ytdl-core": "^4.9.1"
-  }
+  "homepage": "https://github.com/nlfmt/ivy-dl#readme"
 }
