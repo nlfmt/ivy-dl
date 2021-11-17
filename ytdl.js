@@ -19,7 +19,7 @@ const ARGNAMES = {
 
 
 /** A wrapper around yt-dlp.exe to allow easy monitoring. */
-class DLInstance {
+class Downloader {
 
     /**
      * 
@@ -31,7 +31,7 @@ class DLInstance {
      * @param {String} opts.ytdlLoc The location of yt-dlp.exe.
      * @param {String} opts.ytdlArgs A List of arguments to pass to yt-dlp.exe.
      * 
-     * @returns {Promise<DLInstance>} A new instance of DLInstance.
+     * @returns {Promise<Downloader>} A new Downloader instance.
      */
     async constructor(url, opts) {
         
@@ -118,3 +118,11 @@ class DLInstance {
         }
     }
 }
+
+const dl = new Downloader("https://youtube.com/watch?v=783b7dqt384", {
+    output: "videos/",
+    format: "mp4",
+    quality: "bestvideo+bestaudio",
+    ytdlLoc: "./ext/yt-dlp.exe",
+
+})
