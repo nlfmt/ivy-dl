@@ -1,20 +1,9 @@
 const { spawn } = require('child_process');
 const fs = require('fs').promises;
 
-
-/**
- * Tests if a file exists
- * @param {String} path
- * @returns {boolean} true if file exists false otherwise
- */
-function exists(path) {
-    return fs.access(path).then(() => true).catch(() => false);
-}
-
 const ARGNAMES = {
-    quality: "--quality",
-    output: "--output",
-    format: "--format"
+    quality: "--format",
+    output: "--output"
 }
 
 
@@ -33,7 +22,7 @@ class Downloader {
      * 
      * @returns {Promise<Downloader>} A new Downloader instance.
      */
-    async constructor(url, opts) {
+    constructor(url, opts) {
         
         this.listeners = {};
 
@@ -51,7 +40,7 @@ class Downloader {
 
         // add custom arguments
         for (const [argName, value] of Object.entries(opts)) {
-            if (!argName in ARGNAMES) continue;
+            if (!(argName in ARGNAMES)) continue;
             this.ytdlArgs.push(ARGNAMES[argName], value);
         }
 
@@ -59,15 +48,31 @@ class Downloader {
         if (opts.ytdlArgs)
             this.ytdlArgs.push(...opts.ytdlArgs);
         
+
         // Custom ytdl location
         this.ytdlLoc = opts.ytdlLoc || "yt-dlp.exe";
-        if (! await exists(this.ytdlLoc)) throw new Error(`Can't find YTDL binary at "${ytdlLoc}".`);
+        fs.access(this.ytdlLoc).catch(() => {
+            throw new Error(`Can't find YTDL binary at "${ytdlLoc}".`)
+        });
 
         // spawn the process
         this.instance = spawn(this.ytdlLoc, this.ytdlArgs);
         
-        // Hook up stdout callback
-        this.instance.stdout.on("data", this._dataCallback);
+        // Hook up stdout/stderr callbacks
+        this.instance.stdout.on("data", msg => this._onChildMessage.call(this, msg));
+        this.instance.stderr.on("data", (e) => {
+            this._dispatchEvent("error", String(e));
+        });
+
+        this.instance.on("close", code => {
+            if (code != 0) {
+                this._dispatchEvent("error", `YTDL exited with code ${code}.`);
+            }
+            if (!opts.format) return;
+            let filename = info.filename;
+            if (filename.endsWith(opts.format)) return;
+            this.converter = new Converter(info.filename, )
+        });
     }
 
 
@@ -91,12 +96,12 @@ class Downloader {
 
 
     // Callback that runs when the ytdl binary prints to stdout.
-    _dataCallback(data) {
+    _onChildMessage(data) {
 
         const msg = data.toString();
-
-        if (this.receivedInfo) {
-            const [ total, downloaded ] = msg.split(" ");
+        if (this.info) {
+            const [ total, downloaded ] = msg.replace(/[^\d ]/g, "").split(" ").map(Number);
+            if (isNaN(total) || total == 0 || isNaN(downloaded) || downloaded > total) return;
             this._dispatchEvent("progress", total, downloaded);
             return;
         }
@@ -104,10 +109,10 @@ class Downloader {
         // First message is the json metadata
         try {
             const json = JSON.parse(msg);
-            this._receivedInfo = true;
+            this.info = json;
             this._dispatchEvent("info", json);
         } catch {
-            throw new Error("JSON info wasn't the first thing sent.");
+            // ignore
         }
     }
     
@@ -118,3 +123,5 @@ class Downloader {
         }
     }
 }
+
+module.exports = Downloader;

@@ -1,4 +1,6 @@
 node_modules/
 
 **/yt-dlp.exe
+**/ffmpeg.exe
+**/ffprobe.exe
 
