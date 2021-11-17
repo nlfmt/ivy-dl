@@ -118,11 +118,3 @@ class Downloader {
         }
     }
 }
-
-const dl = new Downloader("https://youtube.com/watch?v=783b7dqt384", {
-    output: "videos/",
-    format: "mp4",
-    quality: "bestvideo+bestaudio",
-    ytdlLoc: "./ext/yt-dlp.exe",
-
-})
