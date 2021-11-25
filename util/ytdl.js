@@ -1,10 +1,46 @@
 const { spawn } = require('child_process');
+const kill = require("tree-kill");
 const fs = require('fs').promises;
+
+const Converter = require('./conv.js');
 
 const ARGNAMES = {
     quality: "--format",
     output: "--output"
 }
+
+
+// Downloader status diagram
+//
+// idle -> downloading/paused -> (converting) -> done
+// |-> error
+// |-> stopped
+
+
+/** Events:
+- start
+
+- info
+- progress
+- converting
+
+- pause
+- resume
+- stop
+
+- error
+- done
+**/
+
+// TODO:
+// add conversion parameters:
+// - bitrate
+// - audio-only?, video-only?
+// - framerate
+
+// - simple options: quality with low/medium/high
+// - advanced options, select by itag, format, resolution, etc.
+
 
 
 /** A wrapper around yt-dlp.exe to allow easy monitoring. */
@@ -25,6 +61,8 @@ class Downloader {
     constructor(url, opts) {
         
         this.listeners = {};
+        this.status = "idle";
+        this.opts = opts;
 
         // base commandline arguments
         this.ytdlArgs = [
@@ -35,7 +73,10 @@ class Downloader {
             "--progress-template",      // print out progress
 
             // makes yt-dlp.exe output progress like this: "1024 256"
-            "download:%(progress.total_bytes)s %(progress.downloaded_bytes)s"
+            "download:%(progress.total_bytes)s %(progress.downloaded_bytes)s",
+
+            "-o",
+            opts.output
         ]
 
         // add custom arguments
@@ -57,22 +98,8 @@ class Downloader {
 
         // spawn the process
         this.instance = spawn(this.ytdlLoc, this.ytdlArgs);
-        
-        // Hook up stdout/stderr callbacks
-        this.instance.stdout.on("data", msg => this._onChildMessage.call(this, msg));
-        this.instance.stderr.on("data", (e) => {
-            this._dispatchEvent("error", String(e));
-        });
 
-        this.instance.on("close", code => {
-            if (code != 0) {
-                this._dispatchEvent("error", `YTDL exited with code ${code}.`);
-            }
-            if (!opts.format) return;
-            let filename = info.filename;
-            if (filename.endsWith(opts.format)) return;
-            this.converter = new Converter(info.filename, )
-        });
+        this._setupListeners();
     }
 
 
@@ -94,6 +121,71 @@ class Downloader {
         this.listeners[eventName] = null;
     }
 
+    /**
+     * Pauses the downloader.
+     */
+    pause() {
+        // this.instance.stdin.pause();
+        // this.instance.kill("SIGINT");
+        kill(this.instance.pid);
+        this.status = "paused";
+        this._dispatchEvent("pause");
+    }
+    
+    /**
+     * Resumes the downloader.
+     */
+    resume() {
+        this.status = "downloading";
+        
+        this._dispatchEvent("resume");
+        this.instance = spawn(this.ytdlLoc, this.ytdlArgs);
+        this._setupListeners();
+    }
+    
+    /**
+     * Stops the downloader.
+     */
+    stop() {
+        // this.instance.stdin.pause();
+        // this.instance.kill();
+        kill(this.instance.pid);
+        this.status = "stopped";
+        this._dispatchEvent("stop");
+    }
+
+
+    // Sets up listeners for the ytdl process.
+    _setupListeners() {
+
+        const ytdl = this.instance;
+
+        // hook up stdout/stderr callbacks
+        ytdl.stdout.on("data", msg => this._onChildMessage.call(this, msg));
+        ytdl.stderr.on("data", (e) => {
+            if (String(e).includes("will be merged into mkv")) return this.wasMkvMerged = true;
+            if (String(e).includes("WARNING")) return;
+            this._dispatchEvent("error", String(e));
+        });
+
+        // spawn event
+        ytdl.on("spawn", () => {
+            this.status = "downloading";
+            this._dispatchEvent("start");
+        });
+        
+        // close event & conversion
+        ytdl.on("close", code => {
+            if (code != 0)
+                return this._dispatchEvent("error", `YTDL exited with code ${code}.`);
+
+            // Only convert if a specific format was requested.
+            if (!this.opts.format) return;
+
+            this._runConverter();
+        });
+    }
+
 
     // Callback that runs when the ytdl binary prints to stdout.
     _onChildMessage(data) {
@@ -102,7 +194,12 @@ class Downloader {
         if (this.info) {
             const [ total, downloaded ] = msg.replace(/[^\d ]/g, "").split(" ").map(Number);
             if (isNaN(total) || total == 0 || isNaN(downloaded) || downloaded > total) return;
-            this._dispatchEvent("progress", total, downloaded);
+            this._dispatchEvent("progress", {
+                type: "download",
+                total,
+                done: downloaded,
+                perc: downloaded / total * 100.0
+            });
             return;
         }
         
@@ -110,6 +207,7 @@ class Downloader {
         try {
             const json = JSON.parse(msg);
             this.info = json;
+            fs.writeFile("info.json", JSON.stringify(json, null, 4));
             this._dispatchEvent("info", json);
         } catch {
             // ignore
@@ -121,6 +219,61 @@ class Downloader {
         if (this.listeners[eventName]) {
             this.listeners[eventName](...args);
         }
+    }
+
+    _runConverter() {
+
+        const { opts, info, wasMkvMerged } = this;
+
+
+        let ext = wasMkvMerged ? "mkv" : info.ext;
+
+        // Check if the output already is in correct format
+        if (ext === opts.format) {
+            this._dispatchEvent("done");
+            return this.status = "done";
+        }
+        
+
+        // Create current filename
+        let currentFilename = info.filename;
+        if (!currentFilename.endsWith(ext)) currentFilename += "." + ext;
+
+        // Create new filename
+        let filename = currentFilename;
+        filename = filename.split(".").slice(0, -1).join(".") + "." + opts.format;
+
+        console.log("Converting", currentFilename, "to", filename);
+        let conv = new Converter(currentFilename, filename, {
+            ffmpegLoc: opts.ffmpegLoc || "ffmpeg.exe",
+            keepInput: false
+        });
+
+        conv.run();
+
+        conv.on("start", () => {
+            this.status = "converting";
+            this._dispatchEvent("converting");
+        });
+
+        conv.on("progress", (total, done) => {
+            this._dispatchEvent("progress", {
+                type: "convert",
+                total,
+                done,
+                perc: done / total * 100
+            });
+        })
+
+        conv.on("done", () => {
+            this.status = "done";
+            this._dispatchEvent("done");
+        });
+
+        conv.on("error", (e) => {
+            this.status = "error";
+            this._dispatchEvent("error", String(e));
+        });
     }
 }
 

@@ -4,3 +4,4 @@ node_modules/
 **/ffmpeg.exe
 **/ffprobe.exe
 
+**/*.sample.json
