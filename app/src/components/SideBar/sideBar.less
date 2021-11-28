@@ -1,0 +1,119 @@
+.sideBar {
+    flex-grow: 0;
+    width: 60px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    position: relative;
+    &:before {
+        content:"";
+        position: absolute;
+        top: var(--titleBarHeight);
+        --radius: 10px;
+        width: calc(var(--radius) * 2);
+        height: calc(var(--radius) * 2);
+        border-radius: var(--radius);
+
+        right: calc(var(--radius) * -2);
+        box-shadow: calc(-1 * var(--radius)) calc(-1 * var(--radius)) 0 var(--bg);
+
+        background: none;
+    }
+
+    &.expanded {
+        width: max(200px, 20vw);
+
+        & .logo span {
+            opacity: 0.4;
+            transition-delay: 0.2s;
+            transform: scale(1);
+        }
+    }
+
+    transition: width 200ms ease-out;
+
+    background: var(--bg); 
+
+    & .logo {
+        height: 40px;  
+        width: 40px;
+        margin: 10px;
+        flex-grow: 0;
+
+        // background: var(--bg-dark);
+        border-radius: 50%;
+
+        display: grid;
+        place-items: center;
+
+
+        display: flex;
+        align-items: center;
+
+        svg {
+            min-width: 40px;
+            height: 40px;
+            fill: var(--col1);
+        }
+
+        & span {
+            display: inline-block;
+            opacity: 0;
+            transform: scale(0.7);
+            transform-origin: left;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            transition-delay: 0s;
+
+            font-size: smaller;
+
+            white-space: nowrap;
+
+            margin-left: 10px;
+        }
+    }
+
+    & .lineSpacer {
+        border-top: 2px solid var(--bg-lighter);
+        margin: 10px;
+    }
+
+    & .sideBarPages {
+        .pageBtn {
+            height: 50px;
+            margin: 10px;
+        }
+    }
+
+
+    & .expandArea {
+        flex-grow: 1;
+    }
+}
+
+// .progressBarWrapper {
+
+
+//     background: var(--bg-lighter);
+//     border-radius: 10px;
+//     .circularProgressBar {
+//         padding: 5px;
+//         width: 40px;
+//         height: 40px;
+
+//         & svg {
+//             width: 30px;
+//             height: 30px;
+//         }
+//     }
+
+//     display: flex;
+//     align-items: center;
+
+//     height: 40px;
+//     // width: 100%;
+//     margin: 10px;
+
+
+// }

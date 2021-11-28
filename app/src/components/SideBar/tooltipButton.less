@@ -1,0 +1,114 @@
+.tooltipBtn {
+
+    flex-grow: 0;
+
+    display: flex;
+    align-items: center;
+    margin: 10px;
+    border-radius: 10px;
+    height: 40px;
+
+    background: var(--bg-light);
+
+    box-shadow: 0 0 7px rgba(0, 0, 0, 0);
+    transition: box-shadow 0.2s ease, transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transform: scale(1);
+
+    position: relative;
+
+    // Button gradient overlay
+    &:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+
+        border-radius: 10px;
+
+        background: linear-gradient(to right, var(--col1) 0%, var(--col2) 100%);
+        opacity: 0;
+
+        transition: opacity 0.2s ease;
+
+    }
+
+    & svg {
+        min-width: 40px;
+        height: 30px;
+
+        transform: scale(0.9);
+        transition: transform 0.15s ease;
+    }
+
+    
+    & .tooltip {
+        
+        // Tooltip Style
+        background: var(--bg-light);
+        box-shadow: 0 5px 5px rgba(0,0,0,0.15);
+        border-radius: 5px;
+        height: 30px;
+        padding: 0 10px;
+        pointer-events: none;
+        white-space: nowrap;
+
+        font-size: 12px;
+
+        // Center text
+        display: grid;
+        place-items: center;
+
+        // Changing properties
+        opacity: 0;
+        transform: scale(0.7) translateX(-20px);
+        
+        // Transition
+        transition: transform 0.15s ease,
+                    opacity 0.15s ease,
+                    box-shadow 0.15s ease,
+                    background 0.15s ease;
+        transition-delay: 0s;
+
+    }
+    
+    &:hover {
+
+        box-shadow: 0 5px 8px rgba(0,0,0,0.35);
+        // background: linear-gradient(to right, var(--col1) 0%, var(--col3) 100%);
+        &:before {
+            opacity: 1;
+        }
+
+        & svg {
+            // fill: var(--col1);
+            transform: scale(1);
+        }
+
+        & .tooltip {
+            transition-delay: 0.8s;
+
+            transform: scale(1) translateX(20px);
+            opacity: 1;
+        }
+    }
+
+    &:active {
+        transform: scale(0.95);
+    }
+
+    &.expanded {
+        & .tooltip {
+            opacity: 1;
+            transform: scale(1) translateX(0);
+            background: none;
+
+            box-shadow: none;
+        }
+        & svg {
+            width: 40px;
+        }
+    }
+
+}

@@ -1,0 +1,53 @@
+.titleBar {
+    flex-grow: 0;
+    height: var(--titleBarHeight);
+
+    background: var(--bg);
+
+    display: flex;
+
+    .titleBarDragArea {
+        flex-grow: 1;
+        display: grid;
+        place-items: center;
+
+        -webkit-app-region: drag;
+
+        opacity: 0.2;
+    }
+
+    ul#windowControls {
+        height: 100%;
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+
+        list-style: none;
+
+
+        & li {
+            height: 100%;
+            display: grid;
+            place-items: center;
+
+            padding: 0 10px;
+
+            & svg {
+                width: 16px;
+                transition: transform 0.2s ease;
+            }
+
+            &:hover svg {
+                fill: var(--col1);
+                transform: scale(1.3);
+            }
+
+            &:active svg {
+                transform: scale(1);
+            }
+            
+        }
+    }
+}

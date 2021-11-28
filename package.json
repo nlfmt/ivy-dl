@@ -2,9 +2,10 @@
   "name": "ivy-dl",
   "version": "1.0.0",
   "description": "A Desktop app to download youtube videos",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "electron .",
+    "watch": "webpack --config webpack.common.js --watch"
   },
   "repository": {
     "type": "git",
@@ -23,6 +24,24 @@
   },
   "homepage": "https://github.com/nlfmt/ivy-dl#readme",
   "dependencies": {
-    "tree-kill": "^1.2.2"
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
+    "@babel/preset-react": "^7.16.0",
+    "@material-ui/core": "^4.12.3",
+    "@material-ui/icons": "^4.11.2",
+    "css-loader": "^6.5.1",
+    "electron": "^16.0.2",
+    "electron-reload": "^2.0.0-alpha.1",
+    "less": "^4.1.2",
+    "less-loader": "^10.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "style-loader": "^3.3.1",
+    "tree-kill": "^1.2.2",
+    "webpack": "^5.64.4",
+    "webpack-cli": "^4.9.1"
+  },
+  "devDependencies": {
+    "babel-loader": "^8.2.3"
   }
 }
