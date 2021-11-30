@@ -67,15 +67,21 @@ const SideBar = () => {
                 </TooltipButton>
             </div>
 
-            <div className="expandArea" onClick={() => setIsExpanded((s) => !s)}>
-            </div>
+            <div
+                className="expandArea"
+                onClick={() => setIsExpanded((s) => !s)}
+            ></div>
 
             <TooltipButton
                 id="progressBtn"
                 name="400MB / 1,3GB"
                 expanded={isExpanded}
             >
-                <CircularProgressBar value={progress} strokeWidth={2} fg="var(--white)" bg="var(--bg-dark)"/>
+                <CircularProgressBar
+                    value={progress}
+                    size={100}
+                    strokeWidth={15}
+                />
             </TooltipButton>
         </aside>
     );

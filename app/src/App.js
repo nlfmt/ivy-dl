@@ -15,7 +15,7 @@ const App = () => {
             <SideBar />
             <section className="appContent">
                 <TitleBar />
-                <Home />
+                <Downloads />
             </section>
         </>
     )

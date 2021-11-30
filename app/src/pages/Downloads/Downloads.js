@@ -1,8 +1,12 @@
-import React from 'react'
+import React, { useState } from 'react'
+
+import "./downloads.less"
 
 import AppPage from '../../components/AppPage/AppPage'
 import DropdownMenu from '../../components/DropdownMenu/DropdownMenu'
-import CheckBox from '../../components/CheckBox/CheckBox'
+import CheckBox from '../../components/ToggleButton/ToggleButton'
+
+import { ArrowDownwardRounded, SearchRounded } from '@material-ui/icons'
 
 
 
@@ -27,24 +31,32 @@ function Downloads() {
     return (
         <AppPage name="downloads">
             <div className="searchBar">
-                <div className="searchBar">SearchBar</div>
-                <span className="info">Infos</span>
-                <DropdownMenu
-                    onChange={(type) =>
-                        setSort((s) => {
-                            return { ...s, type };
-                        })
-                    }
-                    options={sortOptions}
-                />
-
-                <CheckBox
-                    onChange={(order) => 
-                        setSort((s) => {
-                            return { ...s, order };
-                        })
-                    }
-                />
+                <div className="search">
+                    <SearchRounded className="searchIcon" />
+                    <input type="text" placeholder="Search" />
+                </div>
+                <span className="info">14 Videos</span>
+                <div className="sortOptions">
+                    <DropdownMenu
+                        label="Sort by"
+                        default={0}
+                        onChange={(type) =>
+                            setSort((s) => {
+                                return { ...s, type };
+                            })
+                        }
+                        options={sortOptions}
+                    />
+                    <CheckBox
+                        onChange={(order) =>
+                            setSort((s) => {
+                                return { ...s, order: order ? 1 : 0 };
+                            })
+                        }
+                    >
+                        <ArrowDownwardRounded />
+                    </CheckBox>
+                </div>
             </div>
 
             <div className="downloadsList">

@@ -15,15 +15,20 @@ winPreferences = {
 
     },
     width: 850,
-    height: 700
+    height: 700,
+    hidden: true
 }
 
 
 app.on("ready", () => {
     var mainWindow = new BrowserWindow(winPreferences);
-    // mainWindow.setMinimumSize(770,360)
+    mainWindow.setMinimumSize(600,400)
+    mainWindow.hide();
 
-    mainWindow.loadURL(`file://${__dirname}/app/build/index.html`);
+    mainWindow.loadURL(`file://${__dirname}/app/build/index.html`).then(() => {
+        console.log("Ready!");
+        mainWindow.show();
+    });
 
     mainWindow.on("closed", () => app.quit());
 

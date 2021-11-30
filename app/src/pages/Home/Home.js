@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 
 import AppPage from "../../components/AppPage/AppPage";
-import DropdownMenu from "../../components/DropdownMenu/DropdownMenu";
-import CheckBox from "../../components/CheckBox/CheckBox";
 
 import "./home.less";
 
