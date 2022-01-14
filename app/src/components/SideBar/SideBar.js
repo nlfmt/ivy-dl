@@ -2,9 +2,15 @@ import React, { useState, useRef, useEffect } from 'react'
 import "./sideBar.less";
 
 import TooltipButton from './TooltipButton';
-
-import { SyncRounded, GetAppRounded, SettingsRounded, PlayCircleFilledRounded } from '@material-ui/icons';
 import CircularProgressBar from '../CircularProgressBar/CircularProgressBar';
+
+import {
+    SyncRounded,
+    GetAppRounded,
+    SettingsRounded,
+    PlayCircleFilledRounded
+} from "@material-ui/icons";
+
 const { window } = electron;
 
 
@@ -12,6 +18,8 @@ const SideBar = () => {
 
     const [isExpanded, setIsExpanded] = useState(false);
     const [progress, setProgress] = useState(0);
+    // custom appState hooks for ETA, total progress, remaining bytes
+    // const appState = useAppState();
 
 
     const toggleSidebar = (e) => {
@@ -58,6 +66,7 @@ const SideBar = () => {
                     <SyncRounded />
                 </TooltipButton>
 
+                <div className="lineSpacer"></div>
                 <TooltipButton
                     id="settingsBtn"
                     name="Settings"
@@ -72,6 +81,7 @@ const SideBar = () => {
                 onClick={() => setIsExpanded((s) => !s)}
             ></div>
 
+            {/* TODO: Dynamically change icon to home icon if there are no downloads */}
             <TooltipButton
                 id="progressBtn"
                 name="400MB / 1,3GB"

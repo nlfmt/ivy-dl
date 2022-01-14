@@ -6,7 +6,7 @@ const Converter = require('./conv.js');
 
 const ARGNAMES = {
     quality: "--format",
-    output: "--output"
+    path: "--paths"
 }
 
 
@@ -75,8 +75,8 @@ class Downloader {
             // makes yt-dlp.exe output progress like this: "1024 256"
             "download:%(progress.total_bytes)s %(progress.downloaded_bytes)s",
 
-            "-o",
-            opts.output
+            // "--paths",
+            // opts.output
         ]
 
         // add custom arguments
@@ -97,6 +97,7 @@ class Downloader {
         });
 
         // spawn the process
+        console.log("SPAWNED YTDL:", this.ytdlLoc, this.ytdlArgs);
         this.instance = spawn(this.ytdlLoc, this.ytdlArgs);
 
         this._setupListeners();
@@ -216,6 +217,7 @@ class Downloader {
     
     // Calls the callback for the given event, if it exists.
     _dispatchEvent(eventName, ...args) {
+        console.log(`DISPATCHING EVENT: ${eventName}`);
         if (this.listeners[eventName]) {
             this.listeners[eventName](...args);
         }

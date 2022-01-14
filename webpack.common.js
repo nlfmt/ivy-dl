@@ -42,5 +42,5 @@ module.exports = {
   output: {
     filename: 'app.js',
     path: path.resolve(__dirname, 'app', 'build', 'js'),
-  },
+  }
 };
