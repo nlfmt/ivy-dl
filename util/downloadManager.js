@@ -1,11 +1,9 @@
 const Ytdl = require("./ytdl");
-const Conv = require("./conv");
 
 const os = require("os");
 
 const logger = require("./logger");
 const listener = require("./listener");
-const { Pause } = require("@material-ui/icons");
 
 var ipc;
 var window;
@@ -49,7 +47,7 @@ function newDownload(url, opts) {
     downloaders.push(dl);
 
     // TODO: What to send to ui when download start but no info present
-    window.webContents.send("download:new", {
+     window.webContents.send("download:new", {
         url,
         opts,
         info: {}
@@ -69,7 +67,7 @@ function newDownload(url, opts) {
     });
     
     dl.on("progress", (progress) => {
-        window.webContents.send(`status:${url}`, "progress", progress);
+        window.webContents.send(`progress:${url}`, progress);
     });
     
     // TODO: download structure? all info top level or in separate dict? how much info, RENAME OR NOT?
@@ -102,12 +100,13 @@ function newDownload(url, opts) {
             
         }
         
-        window.webContents.send(`info:${url}`, download);
+         window.webContents.send(`info:${url}`, download);
         
         downloads[`${date} ${url}`] = download;
     })
 
     dl.on("error", err => {
+         window.webContents.send(`error:${url}`, err);
         logger.error("ytdl error", err);
     })
 

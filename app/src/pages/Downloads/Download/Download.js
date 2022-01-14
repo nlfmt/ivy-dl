@@ -12,7 +12,7 @@ const { dlMgr } = electron;
 // darunter progress bar mit prozentzahl, andere stats
 // ganz rechts menu mit dropdown
 // context menu actions
-const Download = ({url, info}) => {
+const Download = ({url}) => {
 
     const [status, setStatus] = useState("downloading");
     const [progress, setProgress] = useState({
@@ -27,16 +27,22 @@ const Download = ({url, info}) => {
         speed_str: "64KB/s"
     });
     const [imgLoad, setImgLoad] = useState(true);
+    const [info, setInfo] = useState({});
 
     useEffect(() => {
+        const iCb = (info) => {
+            setInfo(info);
+        }
         const stCb = (status) => {
             setStatus(status);
         };
         const prCb = (progress) => {
+            setStatus("downloading");
             setProgress(progress);
         };
         dlMgr.onStatusChange(url, stCb);
         dlMgr.onProgress(url, prCb);
+        dlMgr.onInfo(url, iCb);
 
         return () => {
             dlMgr.offStatusChange(url, callback);
@@ -53,7 +59,7 @@ const Download = ({url, info}) => {
                 {imgLoad ? (
                     <img
                         className="thumbnail"
-                        src={info.thumbnail}
+                        src={info.thumbnail || "https://via.placeholder.com/150"}
                         onError={() => setImgLoad(false)}
                     />
                 ) : (
@@ -72,6 +78,7 @@ const Download = ({url, info}) => {
                     <div className="title">
                         {info.title ? info.title : "Initializing..."}
                     </div>
+                    {status}
                     {status == "downloading" &&
                         <ProgressBar progress={progress} />
                     }

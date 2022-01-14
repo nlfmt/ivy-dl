@@ -56,6 +56,9 @@ app.on("ready", () => {
     mainWindow.loadURL(`file://${__dirname}/app/build/index.html`).then(() => {
         logger.info("App loaded");
         mainWindow.show();
+        setInterval(() => {
+            mainWindow.webContents.send("ping");
+        }, 1000);
     });
 
     mainWindow.on("closed", () => app.quit());

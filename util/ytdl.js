@@ -74,9 +74,9 @@ class Downloader {
             "--progress-template",      // print out progress
 
             // makes yt-dlp.exe output progress like this: "1024 256"
-            "download:%(progress.total_bytes)s %(progress.downloaded_bytes)s",
+            "download:%(progress.total_bytes)s %(progress.downloaded_bytes)s %(progress.eta)s",
 
-            "-paths",
+            "--paths",
             opts.path
         ]
 
@@ -191,16 +191,16 @@ class Downloader {
 
     // Callback that runs when the ytdl binary prints to stdout.
     _onChildMessage(data) {
-
         const msg = data.toString();
         if (this.info) {
-            const [ total, downloaded ] = msg.replace(/[^\d ]/g, "").split(" ").map(Number);
+            const [ total, downloaded, eta ] = msg.replace(/[^\d ]/g, "").split(" ").map(Number);
             if (isNaN(total) || total == 0 || isNaN(downloaded) || downloaded > total) return;
             this._dispatchEvent("progress", {
                 type: "download",
                 total,
                 done: downloaded,
-                perc: downloaded / total * 100.0
+                perc: downloaded / total * 100.0,
+                eta
             });
             return;
         }
@@ -209,7 +209,7 @@ class Downloader {
         try {
             const json = JSON.parse(msg);
             this.info = json;
-            fs.writeFile("info.json", JSON.stringify(json, null, 4));
+            // fs.writeFile("info.json", JSON.stringify(json, null, 4));
             this._dispatchEvent("info", json);
         } catch {
             // ignore
@@ -225,7 +225,6 @@ class Downloader {
     }
 
     _runConverter() {
-
         const { opts, info, wasMkvMerged } = this;
 
 

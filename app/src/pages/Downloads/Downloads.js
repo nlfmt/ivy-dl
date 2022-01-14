@@ -30,7 +30,7 @@ const { dlMgr } = electron;
 function Downloads() {
 
     const [downloads, setDownloads] = useState([
-        downloadData, downloadData
+        // downloadData, downloadData
     ]);
 
     const [sort, setSort] = useState({
@@ -39,20 +39,22 @@ function Downloads() {
     });
 
     
-    useEffect( async () => {
+    useEffect(() => {
 
         // Initial Download loading
-        let dlData = await dlMgr.loadDownloads();
-        setDownloads(dlData);
+        dlMgr.loadDownloads().then((dlData) => {
+            setDownloads(dlData);
+        });
 
         // get new downloads
         const cb = (dl) => {
             console.log("new download", dl);
-            return;
             setDownloads(dls => {
+                dls = Array(...dls); // copy array to avoid mutating original
                 dls.push(dl);
                 return dls;
             });
+            console.log("new downloads", downloads);
         }
         dlMgr.onNewDownload(cb);
 
@@ -101,7 +103,7 @@ function Downloads() {
             <div className="downloadsList">
                 {downloads.map((dl, i) => {
                     return (
-                        <Download key={i} url={dl.url} info={dl} />
+                        <Download key={i} url={dl.url} opts={dl.opts} />
                     );
                 })}
             </div>
