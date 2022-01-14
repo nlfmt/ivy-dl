@@ -6,7 +6,7 @@ const Converter = require('./conv.js');
 
 const ARGNAMES = {
     quality: "--format",
-    output: "--output"
+    filename: "--output",
 }
 
 
@@ -50,7 +50,8 @@ class Downloader {
      * 
      * @param {String} url The youtube url of the video to download.
      * @param {Object} opts Options for the downloader.
-     * @param {String} opts.output The output file name.
+     * @param {String} opts.path The output directory.
+     * @param {String} opts.filename The output filename.
      * @param {String} opts.format The format to download.
      * @param {String} opts.quality The quality to download.
      * @param {String} opts.ytdlLoc The location of yt-dlp.exe.
@@ -75,8 +76,8 @@ class Downloader {
             // makes yt-dlp.exe output progress like this: "1024 256"
             "download:%(progress.total_bytes)s %(progress.downloaded_bytes)s",
 
-            "-o",
-            opts.output
+            "-paths",
+            opts.path
         ]
 
         // add custom arguments
