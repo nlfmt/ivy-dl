@@ -7,10 +7,12 @@ import DropdownMenu from '../../components/DropdownMenu/DropdownMenu'
 import CheckBox from '../../components/ToggleButton/ToggleButton'
 import Download from './Download/Download'
 
+import FlipMove from 'react-flip-move'
+
 import { ArrowDownwardRounded, SearchRounded } from '@material-ui/icons'
 
 
-
+  // TODO: implement download date and upload date
 const sortOptions = {
     0: "Date",
     1: "Size",
@@ -21,22 +23,72 @@ const sortOptions = {
     6: "Comments",
 }
 
+const titles = [
+    '"Please Reload, Bro"',
+    'Why LESS Sensitive Tests Might Be Better',
+    'What your GD ship says about you',
+    'Build a WEB3 app to mint unlimited NFTs… But should you?',
+    "The shortest game of Magnus Carlsen's chess career!",
+    "World's Luckiest People!"
+  ]
+
 
 import downloadData from  "./download.sample.json";
 
 const { dlMgr } = electron;
 
 
+
+// https://www.peterbe.com/plog/a-darn-good-search-filter-function-in-javascript
+function searchDownloads(q, list) {
+    list = [...list];
+    function escapeRegExp(s) {
+      return s.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+    }
+    const words = q
+      .split(/\s+/g)
+      .map(s => s.trim())
+      .filter(s => !!s);
+    const hasTrailingSpace = q.endsWith(" ");
+    const searchRegex = new RegExp(
+      words
+        .map((word, i) => {
+          if (i + 1 === words.length && !hasTrailingSpace) {
+            // The last word - ok with the word being "startswith"-like
+            return `(?=.*\\b${escapeRegExp(word)})`;
+          } else {
+            // Not the last word - expect the whole word exactly
+            return `(?=.*\\b${escapeRegExp(word)}\\b)`;
+          }
+        })
+        .join("") + ".+",
+      "gi"
+    );
+
+    const searchStr = str => {
+        return str && str.search(searchRegex) != -1;
+    }
+
+    return list.filter(dl => {
+        return searchStr(dl.title)
+            || searchStr(dl.description)
+            || searchStr(dl.uploader);
+    });
+}
+
+
 function Downloads() {
 
     const [downloads, setDownloads] = useState([
-        // downloadData, downloadData
+        // Object.assign({...downloadData}, {info:{title: 1}}),
+        // Object.assign({...downloadData}, {info:{title: 2}}),
+        // Object.assign({...downloadData}, {info:{title: 3}})
     ]);
-
     const [sort, setSort] = useState({
         type: 0,
         order: 0, // 0 - desc, 1 - asc
     });
+    const [ searchTerm, setSearchTerm ] = useState("");
 
     
     useEffect(() => {
@@ -49,12 +101,24 @@ function Downloads() {
         // get new downloads
         const cb = (dl) => {
             console.log("new download", dl);
+
+            dlMgr.onceInfo(dl.url, (info) => {
+                setDownloads(dls => {
+                    return dls.map(d => {
+                        if (d.url === dl.url) {
+                            Object.assign(d, info);
+                        }
+                        return d;
+                    });
+                });
+                setSort(s => {return {...s}});
+            });
+
             setDownloads(dls => {
                 dls = Array(...dls); // copy array to avoid mutating original
-                dls.push(dl);
+                dls.unshift(dl);
                 return dls;
             });
-            console.log("new downloads", downloads);
         }
         dlMgr.onNewDownload(cb);
 
@@ -65,23 +129,85 @@ function Downloads() {
 
     // re-sort the downloads
     useEffect(() => {
-        console.log("re-sort");
-    }, [downloads, sort])
+        console.log(downloads);
+        console.log("re-sort, type:", sortOptions[sort.type], "order:", sort.order);
+        let fn;
+        switch (sortOptions[sort.type]) {
+            case "Date":
+                fn = (a, b) => {
+                    return a.date > b.date ? -1 : 1;
+                };
+                break;
+            case "Size":
+                fn = (a, b) => a.size > b.size ? -1 : 1;
+                break;
+            case "Length":
+                fn = (a, b) => a.duration < b.duration ? -1 : 1;
+                break;
+            case "Views":
+                fn = (a, b) => a.views > b.views ? -1 : 1;
+                break;
+            case "Likes":
+                fn = (a, b) => a.likes > b.likes ? -1 : 1;
+                break;
+            case "Dislikes":
+                fn = (a, b) => a.dislikes > b.dislikes ? -1 : 1;
+                break;
+            case "Comments":
+                fn = (a, b) => a.comments > b.comments ? -1 : 1;
+                break;
+        }
 
+        console.log(fn)
+
+        if (fn) {
+            setDownloads(dls => {
+                let newDls = dls.sort((a,b) => {
+                    // console.log("comparing a:", a.info.views, " to b:", b.info.views);
+                    // console.log("result:", fn(a,b) * (sort.order == 0 ? 1 : -1));
+                    return fn(a,b) * (sort.order == 0 ? 1 : -1);
+                });
+                console.log("sorted", newDls.map(d => d.title));
+                return [...newDls];
+            });
+        }
+
+    }, [sort, downloads.length])
+
+    // titles.forEach(t => {
+    //     const dl = downloads.find(d => d.title == t);
+    //     if (!dl) return;
+    //     console.log(dl.title, /(?=.*\bw).+/gi.test(t));
+    //     console.log(t, /(?=.*\bw).+/gi.test(t));
+    // });
+
+    let searchedDls;
+    if (searchTerm == "") {
+        searchedDls = downloads;
+    } else {
+        searchedDls = searchDownloads(searchTerm, downloads);
+    }
+    // console.log(`${searchedDls.length} out of ${downloads.length} found`);
+
+    console.log(searchedDls);
 
     return (
         <AppPage name="downloads">
             <div className="searchBar">
                 <div className="search">
                     <SearchRounded className="searchIcon" />
-                    <input type="text" placeholder="Search" />
+                    <input
+                        type="text"
+                        placeholder="Search"
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                 </div>
                 <span className="info">{downloads.length} Videos</span>
                 <div className="sortOptions">
                     <DropdownMenu
                         label="Sort by"
                         default={0}
-                        onChange={(type) => 
+                        onChange={(type) =>
                             setSort((s) => {
                                 return { ...s, type };
                             })
@@ -89,9 +215,10 @@ function Downloads() {
                         options={sortOptions}
                     />
                     <CheckBox
+                        default={sort.order}
                         onChange={(order) =>
                             setSort((s) => {
-                                return { ...s, order: order ? 1 : 0 };
+                                return { ...s, order: order ? 0 : 1 };
                             })
                         }
                     >
@@ -100,13 +227,36 @@ function Downloads() {
                 </div>
             </div>
 
-            <div className="downloadsList">
-                {downloads.map((dl, i) => {
-                    return (
-                        <Download key={i} url={dl.url} opts={dl.opts} />
-                    );
-                })}
-            </div>
+            {/*
+             * key has to be unique and be passed down to the child
+             * can't use index since FlipMove then thinks the order doesnt change
+             * arrow components need to use forwardRef()
+             */}
+            <FlipMove
+                className="downloadList"
+                duration={400}
+                staggerDelayBy={20}
+                enterAnimation="fade"
+                appearAnimation="fade"
+                leaveAnimation="fade"
+                easing="ease"
+            >
+                {searchedDls.length == 0 ? (
+                    downloads.length == 0 ? (
+                        <div className="emptyMsg">No Downloads yet.</div>
+                    ) : (
+                        <div className="emptyMsg">
+                            No results could be found.
+                        </div>
+                    )
+                ) : (
+                    searchedDls.map((dl) => {
+                        return (
+                            <Download key={`${dl.date} ${dl.url}`} dl={dl} />
+                        );
+                    })
+                )}
+            </FlipMove>
 
             <div className="toolBar"></div>
         </AppPage>

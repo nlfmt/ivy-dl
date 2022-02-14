@@ -1,4 +1,22 @@
+@import url("../../index.less");
+
+.downloads {
+    // overflow: hidden;
+    display: grid;
+    grid-template-rows: 50px calc(100% - 50px);
+}
+
+.downloadList {
+    margin-right: 10px;
+    max-height: calc(100vh - var(--titleBarHeight) - 50px);
+    overflow: visible;
+    overflow-y: scroll;
+
+    .scrollbar;
+}
+
 .searchBar {
+    z-index: 5;
     display: flex;
     align-items: stretch;
 
@@ -6,6 +24,8 @@
 
     margin: 10px 0;
     padding: 0 10px;
+
+    box-shadow: 0 15px 10px var(--bg-dark);
 
     & > * {
         flex-grow: 0;
@@ -73,11 +93,3 @@
 
 }
 
-
-
-.downloadsList {
-    display: grid;
-    grid-auto-rows: 100px;
-    padding: 10px;
-    gap: 10px;
-}

@@ -1,6 +1,7 @@
 const Ytdl = require("./ytdl");
 
 const os = require("os");
+const fs = require("fs");
 
 const logger = require("./logger");
 const listener = require("./listener");
@@ -19,7 +20,7 @@ var window;
 
 // Handle option changes
 let downloadOptions = {
-    output: `${os.homedir()}/Downloads`,
+    path: `${os.homedir()}/Downloads/IvyDl Videos`,
     
     quality: "best", // TODO best, good, medium, low, worst, custom
     audio: "best", // individual quality only valid when quality=custom
@@ -27,15 +28,24 @@ let downloadOptions = {
     
     autoconvert: true,
     format: "mp4",
-    ytdlLoc: "../ext/yt-dlp.exe",
+    ytdlLoc: "./ext/yt-dlp.exe",
 }
-
 
 
 
 // TODO: get default settings from settings tab
 let downloaders = [];
 let downloads = {};
+
+function setStatus(url, status) {
+    console.log("status")
+    for (const dl of Object.values(downloads)) {
+        if (dl.url != url) continue;
+        dl.status = status;
+    }
+    console.log("Sending status", status);
+    window.webContents.send(`status:${url}`, status);
+}
 
 function newDownload(url, opts) {
 
@@ -53,17 +63,17 @@ function newDownload(url, opts) {
         info: {}
     });
     
-    dl.on("start", () => window.webContents.send(`status:${url}`, "start"));
-    dl.on("pause", () => window.webContents.send(`status:${url}`, "pause"));
-    dl.on("resume", () => window.webContents.send(`status:${url}`, "resume"));
-    dl.on("converting", () => window.webContents.send(`status:${url}`, "converting"));
+    dl.on("start", () => setStatus(url, "start"));
+    dl.on("pause", () => setStatus(url, "pause"));
+    dl.on("resume", () => setStatus(url, "resume"));
+    dl.on("converting", () => setStatus(url, "converting"));
     dl.on("stop", () => {
         downloaders.splice(downloaders.indexOf(dl), 1);
-        window.webContents.send(`status:${url}`, "stop");
+        setStatus(url, "stop");
     });
     dl.on("done", () => {
         downloaders.splice(downloaders.indexOf(dl), 1);
-        window.webContents.send(`status:${url}`, "done");
+        setStatus(url, "done");
     });
     
     dl.on("progress", (progress) => {
@@ -77,37 +87,39 @@ function newDownload(url, opts) {
             url,
             date,
             opts,
-
+            
             status: "initializing",
-
+            
             title: i.title,
             thumbnail: i.thumbnail,
-
+            
             likes: i.like_count,
             dislikes: i.dislike_count,
             views: i.view_count,
-
+            website: i.extractor_key,
+            
             duration: i.duration,
             
             uploader: i.uploader,
             uploaderUrl: i.uploader_url,
-
-            filesize: i.filesize || i.filesize_approx,
+            
+            size: i.filesize || i.filesize_approx,
             format: opts.format,
-
-
+            
+            
             // TODO: file size, formats?
             
         }
         
-         window.webContents.send(`info:${url}`, download);
+        window.webContents.send(`info:${url}`, download);
         
         downloads[`${date} ${url}`] = download;
     })
-
+    
     dl.on("error", err => {
-         window.webContents.send(`error:${url}`, err);
         logger.error("ytdl error", err);
+        setStatus(url, "error");
+        downloaders.splice(downloaders.indexOf(dl), 1);
     })
 
 }
@@ -127,11 +139,20 @@ function stop(url) {
 }
 
 
+function cacheDownloads() {
+    fs.writeFileSync("./downloads.json", JSON.stringify(downloads));
+}
+
 function init(_window, _ipc) {
     logger.info("Initializing download manager");
 
     window = _window;
     ipc = _ipc;
+
+    // Load downloads
+    if (fs.existsSync("./downloads.json")) {
+        downloads = JSON.parse(fs.readFileSync("./downloads.json"));
+    }
 
     // Download Settings change
     ipc.on("settings:download", (e, opts) => {
@@ -140,6 +161,9 @@ function init(_window, _ipc) {
 
     // toggle the listener
     ipc.on("listener:toggle", () => listener.toggle());
+    listener.onURL(url => {
+        newDownload(url, downloadOptions);
+    });
 
     // download a video
     ipc.on("download:new", (event, url, opts) => {
@@ -152,13 +176,14 @@ function init(_window, _ipc) {
     ipc.on("download:resume", (_, url) => resume(url));
     ipc.on("download:stop", (_, url) => stop(url));
 
-    ipc.on("downlads:load", () => {
-        window.send("downloads:load", downloads);
+    ipc.on("downloads:load", () => {
+        window.send("downloads:load", Object.values(downloads));
     });
 }
 
 
 module.exports = {
     init,
-    newDownload
+    newDownload,
+    cacheDownloads
 }

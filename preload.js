@@ -28,6 +28,7 @@ contextBridge.exposeInMainWorld("electron", {
 
             return new Promise((resolve, reject) => {
                 ipc.once("downloads:load", (_, dls) => {
+                    console.log("got downloads", dls);
                     resolve(dls);
                 });
             });
@@ -42,10 +43,10 @@ contextBridge.exposeInMainWorld("electron", {
             ipc.removeListener("download:new", callback);
         },
 
-        onInfo(url, callback) {
-            ipc.on(`info:${url}`, (_, dl) => {
-                callback(dl);
-            })
+        onceInfo(url, callback) {
+            ipc.once(`info:${url}`, (_, info) => {
+                callback(info);
+            });
         },
 
         onStatusChange(url, callback) {
@@ -63,6 +64,10 @@ contextBridge.exposeInMainWorld("electron", {
         },
         offProgress(url, callback) {
             ipc.removeListener(`progress:${url}`, callback);
+        },
+
+        toggleListener() {
+            ipc.send("listener:toggle");
         }
     }
 });

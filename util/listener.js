@@ -9,7 +9,7 @@ let onURL = () => {};
 
 // Get supported domains from github repo and parse them
 let supportedDomains;
-fetch("htts://raw.githubusercontent.com/yt-dlp/yt-dlp/master/supportedsites.md").then(res => res.text()).then(text => {
+fetch("https://raw.githubusercontent.com/yt-dlp/yt-dlp/master/supportedsites.md").then(res => res.text()).then(text => {
     let domainList = text.split("\n");
     domainList = domainList.filter(line => line.startsWith(" - **"));
     
@@ -29,23 +29,33 @@ fetch("htts://raw.githubusercontent.com/yt-dlp/yt-dlp/master/supportedsites.md")
 function start() {
     if (listener) return logger.warn("listener already started");
 
+    cb.copy("");
+
     listener = setInterval(async () => {
         let val = await cb.paste();
-        if (val === last) return;
+        if (val == last) return;
+        last = val;
+        console.log("val:", val);
 
         // Check if val is a valid url
         if (!val.match(/^(?:(?:https?|ftp):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/)) return;
             
-        // Check if val is a supported domain
-        if (!supportedDomains.includes(val.split(/(\/|\.)/)[4])) {
+
+        // Get base domain from url
+        let domain = val.split("/")[2];
+        domain = domain.split(".")[domain.split(".").length - 2];
+
+
+        // Check if domain is a supported domain
+        if (!supportedDomains.includes(domain)) {
             // TODO: Handle experimental downloads?
-            return;
+            return logger.warn("unsupported domain");
         }
         
         // call the user defined callback
+        console.log("onURL", val);
         onURL(val);
 
-        last = val;
 
     }, 500);
 }
@@ -76,6 +86,8 @@ function toggle() {
 module.exports = {
     start,
     stop,
-    onURL,
+    onURL: (cb) => {
+        onURL = cb;
+    },
     toggle
 }

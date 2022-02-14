@@ -7,5 +7,6 @@ node_modules/
 **/*.sample.json
 
 app/build/js/
+dist/
 
 ivy.log

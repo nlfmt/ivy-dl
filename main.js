@@ -61,7 +61,10 @@ app.on("ready", () => {
         }, 1000);
     });
 
-    mainWindow.on("closed", () => app.quit());
+    mainWindow.on("closed", () => {
+        downloadManager.cacheDownloads();
+        app.quit();
+    });
 
     downloadManager.init(mainWindow, ipcMain);
 

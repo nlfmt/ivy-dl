@@ -1,5 +1,5 @@
 // TODO: import font from file
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
+// @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 
 :root {
@@ -55,4 +55,35 @@ body {
     align-items: stretch;
 
     background: var(--bg-dark);
+}
+
+
+.scrollbar() {
+
+    &::-webkit-scrollbar {
+
+        width: 15px;
+        // background: var(--bg-lighter);
+        transition: width 0.2s ease;
+
+        &:hover { width: 16px }
+
+    }
+
+    &::-webkit-scrollbar-thumb {
+
+        border-radius: 5px;
+        background: var(--bg-light);
+        transition: width 0.2s ease;
+
+        &:hover { width: 16px }
+
+    }
+
+    &::-webkit-scrollbar-track {
+
+        border-radius: 5px;
+        background: var(--bg);
+        margin: 10px;
+    }
 }

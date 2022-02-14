@@ -227,6 +227,8 @@ class Downloader {
     _runConverter() {
         const { opts, info, wasMkvMerged } = this;
 
+        //FIXME info is somehow undefined?
+        if (!info) return;
 
         let ext = wasMkvMerged ? "mkv" : info.ext;
 

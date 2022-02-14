@@ -1,0 +1,18 @@
+* build solid base model in downloadManager
+    - send status updates not with per-url event but with one event and url as param
+    - update status in backend model => storing downloads is just a matter of writing json array to file
+    - save dl data and properties to file
+    - keep track of global progress, send global progress updates as event
+
+* fix downlaods UI
+    - replace img with div
+    - dont squash images
+    - hover fx
+
+* context menu
+
+* info popup when clicking(?) download
+
+* floating download toolbar
+
+* FlipMove animation errors when searching too fast?

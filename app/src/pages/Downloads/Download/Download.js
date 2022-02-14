@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 
+import { ThumbDownRounded, ThumbUpRounded, VisibilityRounded } from "@material-ui/icons";
+
 import "./download.less"
 
 
@@ -12,9 +14,11 @@ const { dlMgr } = electron;
 // darunter progress bar mit prozentzahl, andere stats
 // ganz rechts menu mit dropdown
 // context menu actions
-const Download = ({url}) => {
+const Download = React.forwardRef(({dl, key}, ref) => {
 
-    const [status, setStatus] = useState("downloading");
+    const { url } = dl;
+
+    const [status, setStatus] = useState(dl.status || "downloading");
     const [progress, setProgress] = useState({
         perc: 0,
         speed: 0,
@@ -27,12 +31,9 @@ const Download = ({url}) => {
         speed_str: "64KB/s"
     });
     const [imgLoad, setImgLoad] = useState(true);
-    const [info, setInfo] = useState({});
+    // const [info, setInfo] = useState({});
 
     useEffect(() => {
-        const iCb = (info) => {
-            setInfo(info);
-        }
         const stCb = (status) => {
             setStatus(status);
         };
@@ -42,51 +43,51 @@ const Download = ({url}) => {
         };
         dlMgr.onStatusChange(url, stCb);
         dlMgr.onProgress(url, prCb);
-        dlMgr.onInfo(url, iCb);
 
         return () => {
-            dlMgr.offStatusChange(url, callback);
-            dlMgr.offProgress(url, callback);
+            dlMgr.offStatusChange(url, stCb);
+            dlMgr.offProgress(url, prCb);
         };
     }, []);
 
 
     return (
-        <>
-            <div className="downloadContainer">
+        <div className="downloadContainer" key={key} ref={ref}>
 
-                {/* Shows reload button when unable to load image */}
-                {imgLoad ? (
-                    <img
-                        className="thumbnail"
-                        src={info.thumbnail || "https://via.placeholder.com/150"}
-                        onError={() => setImgLoad(false)}
-                    />
-                ) : (
-                    <div className="thumbnail" onClick={() => setImgLoad(true)}>
-                            Reload
-                    </div>
-                )}
-
-                {/* Dynamically shows available info */}
-                <div className="info">
-                    <div className="topInfo">
-                        {!isNaN(info.dislikes) && <h3>{info.dislikes}</h3>}
-                        {!isNaN(info.likes) && <h3>{info.likes}</h3>}
-                        {!isNaN(info.views) && <h3>{info.views}</h3>}
-                    </div>
-                    <div className="title">
-                        {info.title ? info.title : "Initializing..."}
-                    </div>
-                    {status}
-                    {status == "downloading" &&
-                        <ProgressBar progress={progress} />
-                    }
+            {/* Shows reload button when unable to load image */}
+            {imgLoad ? (
+                <div
+                    className="thumbnail"
+                    style={{ backgroundImage: "url(" + dl?.thumbnail || "https://via.placeholder.com/150" + ")" }}
+                    onError={() => setImgLoad(false)}
+                />
+            ) : (
+                <div className="thumbnail" onClick={() => setImgLoad(true)}>
+                        Reload
                 </div>
+            )}
+
+            {/* Dynamically shows available info */}
+            <div className="info">
+                <div className="topInfo">
+                    <NumStat v={dl.views}><VisibilityRounded /></NumStat>
+                    <NumStat v={dl.likes}><ThumbUpRounded /></NumStat>
+                    <NumStat v={dl.dislikes}><ThumbDownRounded /></NumStat>
+                    {/* {!isNaN(dl?.dislikes) && <h3>{dl.dislikes}</h3>} */}
+                    {/* {!isNaN(dl?.likes) && <h3>{dl.likes}</h3>} */}
+                    {/* {!isNaN(dl?.views) && <h3>{dl.views}</h3>} */}
+                </div>
+                <div className="title">
+                    {dl?.title ? dl?.title : "Initializing..."}
+                </div>
+                {status}
+                {status == "downloading" &&
+                    <ProgressBar progress={progress} />
+                }
             </div>
-        </>
+        </div>
     );
-}
+});
 
 
 const ProgressBar = ({progress}) => {
@@ -106,6 +107,15 @@ const ProgressBar = ({progress}) => {
     )
 }
 
+const NumStat = (props) => {
+    return isNaN(props.v) ? null : (
+        <div class="stat">
+            {props.children}
+            {abbrNum(props.v)}
+        </div>
+    );
+}
+
 function parseDuration(d, precise) {
     if (d===0 || isNaN(d)) return "0s";
     
@@ -120,5 +130,17 @@ function parseDuration(d, precise) {
     
     return strArr.join(" ");
 }
+
+function abbrNum(d) {
+    const digits = String(d).length;
+    if (digits < 4) return String(d);
+    let category = Math.min(Math.floor((digits-1) / 3), 3);
+
+    return (digits < (category+1)*3
+            ? Math.floor(d / Math.pow(10, category * 3 - 1)) / 10
+            : Math.floor(d / Math.pow(10, category * 3))
+        ) + ["K", "M", "B"][category-1];
+}
+
 
 export default Download

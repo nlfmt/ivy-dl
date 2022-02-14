@@ -1,0 +1,130 @@
+:root {
+  --titleBarHeight: 30px;
+  --bg-dark: #151519;
+  --bg: #1e1e24;
+  --bg-light: #272730;
+  --bg-lighter: #2e2e38;
+  --bg-dark: hsl(240, 3%, 6%);
+  --bg: hsl(240, 3%, 10%);
+  --bg-light: hsl(240, 3%, 15%);
+  --bg-lighter: hsl(240, 3%, 20%);
+  --white: #cccccc;
+  --white-: 204, 204, 204;
+  --col3: #ff8640;
+  --col3: #ff4640;
+  --col1: #a557ff;
+  --col1: #813cf7;
+  --col1: #bd2525;
+  --col2: #91371b;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-size: 14px;
+  font-family: Poppins, sans-serif;
+  color: var(--white);
+  cursor: default;
+}
+body {
+  width: 100vw;
+  height: 100vh;
+}
+#root {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: stretch;
+  background: var(--bg-dark);
+}
+.downloads {
+  display: grid;
+  grid-template-rows: 50px calc(100% - 50px);
+}
+.downloadList {
+  margin-right: 10px;
+  max-height: calc(100vh - var(--titleBarHeight) - 50px);
+  overflow: visible;
+  overflow-y: auto;
+}
+.downloadList::-webkit-scrollbar {
+  width: 15px;
+  transition: width 0.2s ease;
+}
+.downloadList::-webkit-scrollbar:hover {
+  width: 16px;
+}
+.downloadList::-webkit-scrollbar-thumb {
+  border-radius: 5px;
+  background: var(--bg-light);
+  transition: width 0.2s ease;
+}
+.downloadList::-webkit-scrollbar-thumb:hover {
+  width: 16px;
+}
+.downloadList::-webkit-scrollbar-track {
+  border-radius: 5px;
+  background: var(--bg);
+  margin: 10px;
+}
+.searchBar {
+  z-index: 5;
+  display: flex;
+  align-items: stretch;
+  height: 30px;
+  margin: 10px 0;
+  padding: 0 10px;
+  box-shadow: 0 15px 10px var(--bg-dark);
+}
+.searchBar > * {
+  flex-grow: 0;
+}
+.searchBar .search {
+  width: 20%;
+  position: relative;
+  background: var(--bg);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+}
+.searchBar .search .searchIcon {
+  margin-left: 10px;
+}
+.searchBar .search input {
+  z-index: 1;
+  background: none;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--white);
+  width: 100%;
+  height: 100%;
+  border: none;
+  padding: 5px;
+}
+.searchBar .search input:focus {
+  outline: none;
+}
+.searchBar .info {
+  flex-grow: 1;
+  font-size: 12px;
+  display: grid;
+  place-items: center;
+}
+.searchBar .sortOptions {
+  display: grid;
+  grid-template-columns: 5fr 1fr;
+  gap: 10px;
+  width: 200px;
+}
+.searchBar .sortOptions .toggleButton {
+  display: grid;
+  place-items: center;
+}
+.searchBar .sortOptions .toggleButton svg {
+  width: 18px;
+  z-index: 2;
+  transition: transform 0.2s ease;
+}
+.searchBar .sortOptions .toggleButton.active svg {
+  transform: rotate(180deg);
+}
