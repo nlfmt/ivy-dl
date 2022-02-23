@@ -8,16 +8,21 @@ import {
     SyncRounded,
     GetAppRounded,
     SettingsRounded,
-    PlayCircleFilledRounded
+    PlayCircleFilledRounded,
+    HomeRounded
 } from "@material-ui/icons";
 
-const { window } = electron;
+const { dlMgr } = electron;
 
 
 const SideBar = () => {
 
     const [isExpanded, setIsExpanded] = useState(false);
-    const [progress, setProgress] = useState(0);
+    const [progress, setProgress] = useState({
+        done: 0,
+        total: 0,
+        perc: 0
+    });
     // custom appState hooks for ETA, total progress, remaining bytes
     // const appState = useAppState();
 
@@ -29,14 +34,16 @@ const SideBar = () => {
     }
 
     useEffect(() => {
-        setInterval(() => {
-            setProgress(Math.random() * 100);
-        }, 200);
+        const cb = (p) => setProgress(p);
+        dlMgr.onTotalProgress(cb);
 
         return () => {
-            clearInterval();
+            dlMgr.offTotalProgress(cb);
         }
     }, []);
+
+    console.log(progress);
+
     return (
         <aside
             className={isExpanded ? "sideBar expanded" : "sideBar"}
@@ -84,14 +91,18 @@ const SideBar = () => {
             {/* TODO: Dynamically change icon to home icon if there are no downloads */}
             <TooltipButton
                 id="progressBtn"
-                name="400MB / 1,3GB"
+                name={progress.total > 0 ? "Downloading" : "Home"}
                 expanded={isExpanded}
             >
+            {progress.total == 0 ? (
+                <HomeRounded />
+            ) : (
                 <CircularProgressBar
-                    value={progress}
+                    value={progress.perc}
                     size={100}
                     strokeWidth={15}
                 />
+            )}
             </TooltipButton>
         </aside>
     );

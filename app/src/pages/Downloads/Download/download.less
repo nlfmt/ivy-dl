@@ -13,8 +13,8 @@
     border-radius: 15px;
 
     .thumbnail {
-        aspect-ratio: ~"16/9";
         height: 100%;
+        aspect-ratio: ~"16/9";
         border-radius: 10px;
         flex-shrink: 0;
 
@@ -41,6 +41,9 @@
 
     .topInfo {
         display: flex;
+        height: 14px;
+        flex-wrap: wrap;
+        overflow: hidden;
         align-items: center;
         gap: 20px;
 
@@ -56,10 +59,24 @@
                 margin-right: 5px;
             }
         }
+        a.stat {
+            text-decoration: none;
+            cursor: pointer;
+        }
     }
     .title {
         font-size: 1.2rem;
         padding: 5px 0;
+
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .info {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
     }
 
 }

@@ -38,16 +38,39 @@ let downloaders = [];
 let downloads = {};
 
 function setStatus(url, status) {
-    console.log("status")
     for (const dl of Object.values(downloads)) {
         if (dl.url != url) continue;
         dl.status = status;
     }
-    console.log("Sending status", status);
     window.webContents.send(`status:${url}`, status);
 }
 
+function dispatchTotalProgress() {
+
+    if (downloaders.length == 0) return window.webContents.send("progress:total", {
+        done: 0,
+        total: 0,
+        perc: 0
+    });
+
+    let done = 0;
+    let total = 0;
+    for (const dl of downloaders) {
+        if (!dl.progress) continue;
+        done += dl.progress.done;
+        total += dl.progress.total;
+    }
+
+    window.webContents.send("progress:total", {
+        done,
+        total,
+        perc: (done / total) * 100
+    });
+}
+
 function newDownload(url, opts) {
+
+    if (!listener.isValidUrl(url)) return logger.warn("Invalid url: " + url);
 
     logger.info(`Downloading ${url}`);
     
@@ -70,14 +93,18 @@ function newDownload(url, opts) {
     dl.on("stop", () => {
         downloaders.splice(downloaders.indexOf(dl), 1);
         setStatus(url, "stop");
+        dispatchTotalProgress();
     });
     dl.on("done", () => {
         downloaders.splice(downloaders.indexOf(dl), 1);
         setStatus(url, "done");
+        dispatchTotalProgress();
     });
     
     dl.on("progress", (progress) => {
         window.webContents.send(`progress:${url}`, progress);
+        dl.progress = progress;
+        dispatchTotalProgress();
     });
     
     // TODO: download structure? all info top level or in separate dict? how much info, RENAME OR NOT?
@@ -92,13 +119,16 @@ function newDownload(url, opts) {
             
             title: i.title,
             thumbnail: i.thumbnail,
+            description: i.description,
             
             likes: i.like_count,
             dislikes: i.dislike_count,
             views: i.view_count,
+            resolution: i.resolution,
+
             website: i.extractor_key,
-            
             duration: i.duration,
+            
             
             uploader: i.uploader,
             uploaderUrl: i.uploader_url,
@@ -144,7 +174,6 @@ function cacheDownloads() {
 }
 
 function init(_window, _ipc) {
-    logger.info("Initializing download manager");
 
     window = _window;
     ipc = _ipc;
@@ -168,7 +197,6 @@ function init(_window, _ipc) {
     // download a video
     ipc.on("download:new", (event, url, opts) => {
         if (!opts) opts = downloadOptions;
-        logger.data(opts);
         newDownload(url, opts);
     });
 

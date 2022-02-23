@@ -1,4 +1,12 @@
-const cb = require("copy-paste");
+// const cb = require("copy-paste");
+// try {
+//     const cb = require("clipboardy");
+// } catch {}
+// const { default: cb } = await import('clipboardy');
+// let cb = { readSync: () => {}, writeSync: () => {} };
+// const cb = require("./clipboardy");
+const cb = require("electron").clipboard;
+// import("clipboardy/index.js").then(clipboardy => { cb = clipboardy.default; });
 const fetch = require("cross-fetch");
 const logger = require("./logger");
 
@@ -24,39 +32,46 @@ fetch("https://raw.githubusercontent.com/yt-dlp/yt-dlp/master/supportedsites.md"
 
 
 /**
+ * Tests if url is a valid url and is supported.
+ * @param {string} url The url to test.
+ * @returns true if url is a valid url and is supported, false otherwise.
+ */
+function isValidUrl(url) {
+
+    if (!url.match(/^(?:(?:https?|ftp):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/)) return false;
+
+    // Get base domain from url
+    let domain = url.split("/")[2];
+    domain = domain.split(".")[domain.split(".").length - 2];
+    // Check if domain is a supported domain
+    // TODO: Handle experimental downloads?
+    return supportedDomains.includes(domain);
+}
+
+
+/**
  * Start listening for copied urls
  */
 function start() {
     if (listener) return logger.warn("listener already started");
-
-    cb.copy("");
-
+    logger.info("started listener");
+    
+    // cb.copy("");
+    cb.writeText("");
+    
     listener = setInterval(async () => {
-        let val = await cb.paste();
+        // let val = await cb.paste();
+        let val = cb.readText();
         if (val == last) return;
         last = val;
-        console.log("val:", val);
-
-        // Check if val is a valid url
-        if (!val.match(/^(?:(?:https?|ftp):\/\/)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:\/\S*)?$/)) return;
-            
-
-        // Get base domain from url
-        let domain = val.split("/")[2];
-        domain = domain.split(".")[domain.split(".").length - 2];
-
-
-        // Check if domain is a supported domain
-        if (!supportedDomains.includes(domain)) {
-            // TODO: Handle experimental downloads?
-            return logger.warn("unsupported domain");
-        }
+        
+        // Check val
+        if (!isValidUrl(val)) return logger.warn("invalid url: " + val);
         
         // call the user defined callback
-        console.log("onURL", val);
         onURL(val);
-
-
+        
+        
     }, 500);
 }
 
@@ -66,6 +81,7 @@ function start() {
 function stop() {
     clearInterval(listener);
     listener = null;
+    logger.info("stopped listener");
 }
 
 
@@ -89,5 +105,6 @@ module.exports = {
     onURL: (cb) => {
         onURL = cb;
     },
-    toggle
+    toggle,
+    isValidUrl
 }

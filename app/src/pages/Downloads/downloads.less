@@ -1,7 +1,7 @@
 @import url("../../index.less");
 
 .downloads {
-    // overflow: hidden;
+    position: relative;
     display: grid;
     grid-template-rows: 50px calc(100% - 50px);
 }
@@ -93,3 +93,52 @@
 
 }
 
+.toolBar {
+    height: 50px;
+    position: absolute;
+    bottom: 10px;
+    left: 5%;
+    right: calc(5% + 25px);
+
+    border-radius: 10px;
+
+    background-color: var(--bg);
+
+    box-shadow: 0 15px 25px rgba(0,0,0, 0.7),
+                0 0px 7px rgba(var(--bg-dark-), 0.9),
+                0 -15px 20px rgba(var(--bg-dark-), 0.6);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+
+    button {
+        height: 30px;
+        padding: 0 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: var(--bg-lighter);
+        transition: filter 200ms ease, transform 100ms ease;
+    }
+    button.active {
+        outline: 2px solid var(--col1);
+    }
+
+    button:hover {
+        filter: brightness(1.15);
+    }
+    button:active {
+        transform: scale(0.95);
+    }
+
+    .downloadBtn {
+        background: var(--col1);
+        height: 40px;
+        box-shadow: 0 0 5px rgba(var(--col1-), 0.3), 0 0 10px rgba(var(--col1-), 0.3), 0 0 30px rgba(var(--col1-), 0.3);
+        transition: padding 200ms ease, filter 200ms ease;
+        padding: 0 20px;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+}

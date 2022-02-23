@@ -12,6 +12,7 @@
     --bg-lighter: #2e2e38;
 
     --bg-dark: hsl(240, 3%, 6%);
+    --bg-dark-: 15, 15, 16;
     --bg: hsl(240, 3%, 10%);
     --bg-light: lighten(hsl(240, 3%, 10%), 5%);
     --bg-lighter: lighten(hsl(240, 3%, 10%), 10%);
@@ -22,11 +23,15 @@
     --col3: #ff8640;
     --col3: #ff4640;
     --col1: #a557ff;
-    --col1: #813cf7;
+    --col1-: 165, 87, 255;
+    --col2: #813cf7;
+    --col2-: 129, 60, 247;
     // --col2: #204fa5;
     // --col2: #5120a5;
-    --col1: #bd2525;
-    --col2: #91371b;
+    // --col1: #bd2525;
+    // --col1-: 189, 37, 37;
+    // --col2: #91371b;
+    // --col2-: 145, 55, 27;
 }
 
 * {
@@ -66,17 +71,16 @@ body {
         // background: var(--bg-lighter);
         transition: width 0.2s ease;
 
-        &:hover { width: 16px }
-
+        
     }
-
+    
     &::-webkit-scrollbar-thumb {
-
+        
         border-radius: 5px;
         background: var(--bg-light);
-        transition: width 0.2s ease;
-
-        &:hover { width: 16px }
+        transition: background-color 0.2s ease;
+        
+        &:hover { background: var(--col1) }
 
     }
 

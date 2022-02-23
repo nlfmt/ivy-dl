@@ -33,8 +33,6 @@ const titles = [
   ]
 
 
-import downloadData from  "./download.sample.json";
-
 const { dlMgr } = electron;
 
 
@@ -89,6 +87,7 @@ function Downloads() {
         order: 0, // 0 - desc, 1 - asc
     });
     const [ searchTerm, setSearchTerm ] = useState("");
+    const [isListening, setIsListening] = useState(false);
 
     
     useEffect(() => {
@@ -187,9 +186,6 @@ function Downloads() {
     } else {
         searchedDls = searchDownloads(searchTerm, downloads);
     }
-    // console.log(`${searchedDls.length} out of ${downloads.length} found`);
-
-    console.log(searchedDls);
 
     return (
         <AppPage name="downloads">
@@ -202,7 +198,10 @@ function Downloads() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
-                <span className="info">{downloads.length} Videos</span>
+                {searchTerm != "" ?
+                    <span className="info">{searchedDls.length}/{downloads.length} Videos</span>
+                    : <span className="info">{downloads.length} Videos</span>
+                }
                 <div className="sortOptions">
                     <DropdownMenu
                         label="Sort by"
@@ -258,7 +257,11 @@ function Downloads() {
                 )}
             </FlipMove>
 
-            <div className="toolBar"></div>
+            <div className="toolBar">
+                <button onClick={() => {}} className="optionsBtn">Options</button>
+                <button onClick={() => navigator.clipboard.readText().then(dlMgr.new)} className="downloadBtn">Download</button>
+                <button onClick={() => {dlMgr.toggleListener(); setIsListening(!isListening)}} className={isListening ? "active" : ""}>Auto</button>
+            </div>
         </AppPage>
     );
 }

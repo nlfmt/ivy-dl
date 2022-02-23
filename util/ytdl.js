@@ -98,7 +98,6 @@ class Downloader {
         });
 
         // spawn the process
-        console.log("SPAWNED YTDL:", this.ytdlLoc, this.ytdlArgs);
         this.instance = spawn(this.ytdlLoc, this.ytdlArgs);
 
         this._setupListeners();
@@ -218,7 +217,6 @@ class Downloader {
     
     // Calls the callback for the given event, if it exists.
     _dispatchEvent(eventName, ...args) {
-        console.log(`DISPATCHING EVENT: ${eventName}`);
         if (this.listeners[eventName]) {
             this.listeners[eventName](...args);
         }

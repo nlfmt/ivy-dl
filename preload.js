@@ -1,4 +1,4 @@
-const { ipcRenderer: ipc, contextBridge } = require("electron");
+const { ipcRenderer: ipc, contextBridge, shell } = require("electron");
 
 contextBridge.exposeInMainWorld("electron", {
     notificationApi: {
@@ -28,14 +28,12 @@ contextBridge.exposeInMainWorld("electron", {
 
             return new Promise((resolve, reject) => {
                 ipc.once("downloads:load", (_, dls) => {
-                    console.log("got downloads", dls);
                     resolve(dls);
                 });
             });
         },
         onNewDownload(callback) {
             ipc.on("download:new", (_, dl) => {
-                console.log("new download", dl);
                 callback(dl);
             });
         },
@@ -65,9 +63,22 @@ contextBridge.exposeInMainWorld("electron", {
         offProgress(url, callback) {
             ipc.removeListener(`progress:${url}`, callback);
         },
+        onTotalProgress(callback) {
+            ipc.on("progress:total", (_, p) => {
+                callback(p);
+            });
+        },
+        offTotalProgress(callback) {
+            ipc.removeListener("progress:total", callback);
+        },
 
         toggleListener() {
             ipc.send("listener:toggle");
+        }
+    },
+    shell: {
+        openExternal(url) {
+            shell.openExternal(url);
         }
     }
 });

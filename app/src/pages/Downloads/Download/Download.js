@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react'
 
-import { ThumbDownRounded, ThumbUpRounded, VisibilityRounded } from "@material-ui/icons";
+import {
+    ThumbDownRounded,
+    ThumbUpRounded,
+    VisibilityRounded,
+    CloudQueueRounded,
+    AspectRatioRounded,
+    QueryBuilderRounded,
+    PersonRounded
+} from "@material-ui/icons";
 
 import "./download.less"
-
 
 const { dlMgr } = electron;
 
@@ -73,9 +80,10 @@ const Download = React.forwardRef(({dl, key}, ref) => {
                     <NumStat v={dl.views}><VisibilityRounded /></NumStat>
                     <NumStat v={dl.likes}><ThumbUpRounded /></NumStat>
                     <NumStat v={dl.dislikes}><ThumbDownRounded /></NumStat>
-                    {/* {!isNaN(dl?.dislikes) && <h3>{dl.dislikes}</h3>} */}
-                    {/* {!isNaN(dl?.likes) && <h3>{dl.likes}</h3>} */}
-                    {/* {!isNaN(dl?.views) && <h3>{dl.views}</h3>} */}
+                    <StrStat v={parseDuration(dl.duration)}><QueryBuilderRounded /></StrStat>
+                    <StrStat v={dl.resolution}><AspectRatioRounded /></StrStat>
+                    <StrStat v={dl.uploader} link={dl.uploaderUrl}><PersonRounded /></StrStat>
+                    <StrStat v={dl.website} link={url}><CloudQueueRounded /></StrStat>
                 </div>
                 <div className="title">
                     {dl?.title ? dl?.title : "Initializing..."}
@@ -109,10 +117,22 @@ const ProgressBar = ({progress}) => {
 
 const NumStat = (props) => {
     return isNaN(props.v) ? null : (
-        <div class="stat">
+        <div className="stat">
             {props.children}
             {abbrNum(props.v)}
         </div>
+    );
+}
+const StrStat = (props) => {
+    return !props.v || props.v.trim() == "" ? null : (
+        !props.link ? <div className="stat">
+            {props.children}
+            {String(props.v).trim()}
+        </div> :
+        <a className="stat" href={props.link}>
+            {props.children}
+            {String(props.v).trim()}
+        </a>
     );
 }
 
@@ -130,6 +150,16 @@ function parseDuration(d, precise) {
     
     return strArr.join(" ");
 }
+// function duration(s) {
+//     s = Math.round(s);
+//     let h = Math.floor(s / 3600);
+//     s -= h * 3600;
+//     let m = Math.floor(s / 60);
+//     s -= m * 60;
+//     return (h > 0 ? `${h}h ` : "")
+//          + (m > 0 ? `${m}m ` : "")
+//          + `${s}s`;
+// }
 
 function abbrNum(d) {
     const digits = String(d).length;

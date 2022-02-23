@@ -56,6 +56,7 @@ app.on("ready", () => {
     mainWindow.loadURL(`file://${__dirname}/app/build/index.html`).then(() => {
         logger.info("App loaded");
         mainWindow.show();
+        mainWindow.setBackgroundColor("#0f0f10");
         setInterval(() => {
             mainWindow.webContents.send("ping");
         }, 1000);
@@ -75,8 +76,6 @@ app.on("ready", () => {
 
     ipcMain.on("shell:showfile", (e, path) => {
         let exp = spawn("explorer.exe", ["/select,", path]);
-        exp.stdout.on("data", (d) => console.log(d));
-        exp.stderr.on("data", (d) => console.log(d));
     });
 
     ipcMain.on("fs:delete", (e, path) => {
