@@ -1,0 +1,45 @@
+// These are custom style for ivy dl, feel free to override
+
+.contextMenu {
+    border-top: 1px solid rgba(var(--white-), 0.1);
+    border-radius: 10px;
+
+    background: linear-gradient(to bottom, var(--bg-light) 0%, var(--bg) 150%);
+
+    box-shadow: 0 10px 10px rgba(0,0,0,0.6);
+
+    width: 200px;
+    padding: 10px 0;
+
+    gap: 5px;
+
+    
+    .contextMenu-item {
+        margin: 0 10px;
+        padding: 10px 10px;
+        
+        border-radius: 5px;
+        
+        color: rgba(var(--white-), 0.6);
+
+        & svg {
+            width: 18px;
+        }
+        
+        
+        transition: background 0.1s ease;
+
+        &:focus {
+            background: var(--bg-light) ;
+            outline: 2px solid var(--col1);
+            outline-offset: -2px;
+        }
+        &:hover {
+            outline: none;
+            background: rgba(var(--col1-),0.8);//linear-gradient(to right, var(--col1), var(--col2));
+            color: var(--white);
+        }
+    }
+
+    
+}

@@ -1,4 +1,5 @@
 const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   mode: 'development',
@@ -42,5 +43,10 @@ module.exports = {
   output: {
     filename: 'app.js',
     path: path.resolve(__dirname, 'app', 'build', 'js'),
-  }
+  },
+  plugins: [
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
+  ]
 };

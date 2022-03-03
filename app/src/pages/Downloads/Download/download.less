@@ -10,7 +10,38 @@
     padding: 10px 10px;
 
     background: var(--bg);
+    // background: linear-gradient(to right, var(--bg), var(--bg));
     border-radius: 15px;
+
+    // box-sizing: content-box;
+    border-top: 1px solid rgba(var(--white-), 0.1);
+    position: relative;
+    overflow: hidden;
+    transition: filter 0.2s ease;
+
+    &:active {
+        filter: brightness(1.15);
+    }
+
+    &:before {
+        content: "";
+        position: absolute;
+        left: 50px;
+        right: 50px;
+        top: 0;
+        opacity: 0;
+        // width: 150px;
+        height: 30px;
+        background: var(--col1);
+        filter: blur(50px);
+
+        transition: opacity 0.2s ease;
+    }
+
+    &:not(.moving):hover:before {
+        opacity: 0.5;
+        // background: linear-gradient(to right, var(--bg-lighter), var(--bg));
+    }
 
     .thumbnail {
         height: 100%;
@@ -47,21 +78,26 @@
         align-items: center;
         gap: 20px;
 
-        .stat {
-            opacity: 0.4;
-            display: flex;
-            align-items: center;
-            font-size: 0.8rem;
+    }
+    .stat {
+        opacity: 0.4;
+        display: flex;
+        align-items: center;
+        font-size: 0.8rem;
 
-            svg {
-                height: 14px;
-                width: 14px;
-                margin-right: 5px;
-            }
+        svg {
+            height: 14px;
+            width: 14px;
+            margin-right: 5px;
         }
-        a.stat {
-            text-decoration: none;
-            cursor: pointer;
+    }
+    a.stat {
+        text-decoration: none;
+        cursor: pointer;
+
+        &:hover {
+            // filter: brightness(2);
+            opacity: 0.9;
         }
     }
     .title {
@@ -77,6 +113,7 @@
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        width: 100%;
     }
 
 }
@@ -86,3 +123,47 @@
     display: grid;
     place-items: center;
 }
+
+.progressBar {
+
+    margin-top: 5px;
+
+    display: flex;
+    align-items: center;
+
+    span {
+        font-size: 0.8rem;
+    }
+
+    progress[value] {
+        appearance: none;
+        height: 10px;
+        width: 60%;
+        margin: 0 10px;
+
+        &::-webkit-progress-bar {
+            background-color: var(--bg-dark);
+            border-radius: 10px;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(var(--white-), 0.1);
+        }
+        &::-webkit-progress-value {
+            background: linear-gradient(to left, var(--col1), var(--col2));
+            // box-shadow: 0 0 20px rgba(var(--col1), 1);
+            filter: blur(1px);
+        }
+        // border: none;
+        // background: red;
+    }
+}
+
+
+.react-contexify {
+    background-color: var(--bg-light);
+    color: var(--white);
+    padding: 0;
+    border-radius: 10px;
+
+    border-top: 1px solid rgba(var(--white-), 0.1);
+}
+

@@ -1,0 +1,75 @@
+@keyframes scale_in {
+    from {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.contextMenu {
+    z-index: 50;
+    position: absolute;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+
+    --easing: cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    --easing: ease;
+    transition: transform var(--duration) var(--easing), opacity var(--duration) var(--easing);
+    
+    
+    &.willEnter {
+        transform-origin: top left;
+        animation: scale_in var(--duration) var(--easing);
+    }
+    
+    &.willLeave {
+        transform-origin: top left;
+        opacity: 0;
+        transform: scale(0.3);
+        transition: transform var(--duration) var(--easing), opacity var(--duration) var(--easing);
+    }
+
+    .contextMenu-item {
+        position: relative;
+
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 10px;
+        
+        .contextMenu-arrow {
+            margin-left: auto;
+        }
+        
+        .contextMenu-submenu {
+
+            pointer-events: none;
+            
+            position: absolute;
+            left: 100%;
+            top: 0;
+            
+            opacity: 0;
+            transition: opacity var(--duration) var(--easing);
+
+        }
+        
+        &:hover > .contextMenu-submenu {
+            pointer-events: all;
+            opacity: 1;
+        }
+    }
+
+    .contextMenu-separator {
+        height: 2px;
+        // margin: 2px 0;
+        
+        background: rgba(0,0,0,0.3);
+    }
+}

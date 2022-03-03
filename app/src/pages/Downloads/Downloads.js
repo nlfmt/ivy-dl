@@ -6,6 +6,7 @@ import AppPage from '../../components/AppPage/AppPage'
 import DropdownMenu from '../../components/DropdownMenu/DropdownMenu'
 import CheckBox from '../../components/ToggleButton/ToggleButton'
 import Download from './Download/Download'
+import DownloadView from './DownloadView/DownloadView'
 
 import FlipMove from 'react-flip-move'
 
@@ -22,16 +23,6 @@ const sortOptions = {
     5: "Dislikes",
     6: "Comments",
 }
-
-const titles = [
-    '"Please Reload, Bro"',
-    'Why LESS Sensitive Tests Might Be Better',
-    'What your GD ship says about you',
-    'Build a WEB3 app to mint unlimited NFTs… But should you?',
-    "The shortest game of Magnus Carlsen's chess career!",
-    "World's Luckiest People!"
-  ]
-
 
 const { dlMgr } = electron;
 
@@ -88,6 +79,9 @@ function Downloads() {
     });
     const [ searchTerm, setSearchTerm ] = useState("");
     const [isListening, setIsListening] = useState(false);
+
+    const [selectedDownload, setSelectedDownload] = useState(null);
+    const [dlViewVisible, setDlViewVisible] = useState(false);
 
     
     useEffect(() => {
@@ -157,7 +151,6 @@ function Downloads() {
                 break;
         }
 
-        console.log(fn)
 
         if (fn) {
             setDownloads(dls => {
@@ -239,6 +232,12 @@ function Downloads() {
                 appearAnimation="fade"
                 leaveAnimation="fade"
                 easing="ease"
+                onStart={(_, node) => {
+                    node.classList.add("moving");
+                }}
+                onFinish={(_, node) => {
+                    node.classList.remove("moving");
+                }}
             >
                 {searchedDls.length == 0 ? (
                     downloads.length == 0 ? (
@@ -251,11 +250,16 @@ function Downloads() {
                 ) : (
                     searchedDls.map((dl) => {
                         return (
-                            <Download key={`${dl.date} ${dl.url}`} dl={dl} />
+                            <Download key={`${dl.date} ${dl.url}`} dl={dl} viewDlView={() => {
+                                setDlViewVisible(true);
+                                setSelectedDownload(dl);
+                            }} />
                         );
                     })
                 )}
             </FlipMove>
+
+            <DownloadView hidden={!dlViewVisible} dl={selectedDownload} close={() => setDlViewVisible(false)} />
 
             <div className="toolBar">
                 <button onClick={() => {}} className="optionsBtn">Options</button>

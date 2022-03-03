@@ -7,31 +7,30 @@ import Conversions from './pages/Conversions/Conversions';
 import TitleBar from './components/TitleBar/TitleBar';
 import SideBar from './components/SideBar/SideBar';
 
+import { ContextMenuRenderer, useContextMenu, ContextMenuContext } from './components/ContextMenu';
+
 import "./app.less";
 
-const { shell } = electron;
+
 
 const App = () => {
 
-    useEffect(() => {
-        const callback = event => {
-            if (event.target.tagName.toLowerCase() === 'a') {
-              event.preventDefault();
-              shell.openExternal(event.target.href);
-            }
-        }
-        document.body.addEventListener('click', callback);
-
-        return () => document.body.removeEventListener('click', callback);
-    })
+    const [showContextMenu, menuData] = useContextMenu({ duration: 200 });
 
     return (
         <>
-            <SideBar />
-            <section className="appContent">
-                <TitleBar />
-                <Downloads />
-            </section>
+            <ContextMenuContext.Provider value={{ showContextMenu }}>
+
+                <SideBar />
+                <section className="appContent">
+                    <TitleBar />
+                    <Downloads />
+                </section>
+
+                <ContextMenuRenderer {...menuData} />
+
+            </ContextMenuContext.Provider>
+
         </>
     )
 }

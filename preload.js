@@ -79,6 +79,12 @@ contextBridge.exposeInMainWorld("electron", {
     shell: {
         openExternal(url) {
             shell.openExternal(url);
-        }
+        },
+        showFile(path) {
+            ipc.send("shell:showfile", path);
+        },
+        openPath(path) {
+            shell.openPath(path);
+        },
     }
 });

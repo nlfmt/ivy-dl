@@ -9,10 +9,60 @@
     - dont squash images
     - hover fx
 
-* context menu
+* context menu, or?:
+* add control buttons to downloads (pause/resume/cancel)
 
 * info popup when clicking(?) download
 
 * floating download toolbar
 
 * FlipMove animation errors when searching too fast?
+
+* in settings add options to toggle stats to show on downloads
+
+* add more hover fx, more glassy UI?
+
+* app state -> fix auto-download button not knowing state on refresh
+
+* notifications:
+    - When a provided url is invalid show a short notification in the bottom right
+
+* search options?
+    - "deep" search: also search description, case sensitive...
+
+* fix sort
+    - reshuffling on same values, weird behaviour when null values are present
+    - switching to date doesnt resort???
+
+* show global progress over home button or reposition home button.
+
+* file path info? show if file is missing
+
+* cool initializing download animation with gradients/pulsing?
+* download failed animation? -> red glow or smth
+
+* confirmation box when deleting a download
+  and when
+
+* replace toolbar text with icons
+
+* keybinds? strg+n for new download dialog
+
+* when pressing download, show a dialog with options
+    - simple confirmation to use link from clipboard if it exists
+      or just insert link into box
+
+* multiselect downloads? single click selects, ctrl click etc
+
+* double click open info box
+
+* watch in external player is in context menu
+
+* fill up toolbar
+
+* space to toggle paused state not working
+
+* test if program directory is writable, otherwise save downloads to user directory
+
+* submenu sometimes at wrong position still? prob fixed
+* submenu may be too tall and clip out at the bottom, test for that and push it up.

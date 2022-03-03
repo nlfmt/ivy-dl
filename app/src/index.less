@@ -12,13 +12,27 @@
     --bg-lighter: #2e2e38;
 
     --bg-dark: hsl(240, 3%, 6%);
-    --bg-dark-: 15, 15, 16;
     --bg: hsl(240, 3%, 10%);
     --bg-light: lighten(hsl(240, 3%, 10%), 5%);
     --bg-lighter: lighten(hsl(240, 3%, 10%), 10%);
 
+    --bg-dark-: 15, 15, 16;
+    --bg-: 25, 25, 26;
+
     --white: #cccccc;
     --white-: 204, 204, 204;
+
+    // Light theme
+    // --bg-dark: #9292a3;
+    // --bg: #afafc5;
+    // --bg-light: #c8c8db;
+    // --bg-lighter: #dbdbec;
+    
+    // --bg-dark-: 146, 146, 163;
+    // --bg-: 175, 175, 197;
+
+    // --white: #1f1d1d;    
+    // --white-: 31, 29, 29;    
 
     --col3: #ff8640;
     --col3: #ff4640;
@@ -55,6 +69,9 @@ body {
 #root {
     width: 100vw;
     height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    overflow: hidden;
 
     display: flex;
     align-items: stretch;

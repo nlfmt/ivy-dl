@@ -110,6 +110,8 @@ function newDownload(url, opts) {
     // TODO: download structure? all info top level or in separate dict? how much info, RENAME OR NOT?
     dl.on("info", (i) => {
         
+        console.log(i.filename)
+
         const download = {
             url,
             date,
@@ -135,6 +137,7 @@ function newDownload(url, opts) {
             
             size: i.filesize || i.filesize_approx,
             format: opts.format,
+            filename: i.filename
             
             
             // TODO: file size, formats?

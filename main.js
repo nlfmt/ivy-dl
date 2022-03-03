@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, Notification } = require("electron");
 const path = require("path");
 const fs = require("fs");
+const { spawn } = require("child_process");
 
 const downloadManager = require("./util/downloadManager");
 const logger = require("./util/logger");
@@ -57,9 +58,6 @@ app.on("ready", () => {
         logger.info("App loaded");
         mainWindow.show();
         mainWindow.setBackgroundColor("#0f0f10");
-        setInterval(() => {
-            mainWindow.webContents.send("ping");
-        }, 1000);
     });
 
     mainWindow.on("closed", () => {
